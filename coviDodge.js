@@ -9,7 +9,7 @@ var game = function () {
         .include("Sprites, Scenes, Input, 2D, Anim, Touch, UI, TMX,Audio")
         // Maximize this game to whatever the size of the browser is
         .setup({
-            maximize: true,
+            //maximize: true,
             scaleToFit: true,
             width: 1200,
             height: 612
@@ -20,7 +20,7 @@ var game = function () {
 
     //Q.debug = true;
 
-    Q.load("fondoInf.png, HUD.png, buttonInf.png, applause.mp3, applause.ogg, pinchazo.mp3, pinchazo.ogg, doctor.json, virusR.json, covidRojo.png, buttonHard.png, buttonEasy.png, buttonMedio.png, daddy.png, daddy.json,covidAzul.png, covidVerde.png, virusA.json ,virusV.json, jerginga.png, hospital.png, button2.mp3, button2.ogg, main_music1.mp3, main_music1.ogg, hit3.mp3, hit3.ogg, music_level_complete.mp3, music_level_complete.ogg, ", function () {
+    Q.load("ranking.png, informe.png, fondoInf.png, HUD.png, buttonInf.png, applause.mp3, applause.ogg, pinchazo.mp3, pinchazo.ogg, doctor.json, virusR.json, covidRojo.png, buttonHard.png, buttonEasy.png, buttonMedio.png, daddy.png, daddy.json,covidAzul.png, covidVerde.png, virusA.json ,virusV.json, jerginga.png, hospital.png, button2.mp3, button2.ogg, main_music1.mp3, main_music1.ogg, hit3.mp3, hit3.ogg, music_level_complete.mp3, music_level_complete.ogg, music_ranking.mp3, music_ranking.ogg, credit_music.mp3, credit_music.ogg ", function () {
 
 
 
@@ -44,6 +44,56 @@ var game = function () {
             }
         });
 
+
+        //Credits
+        Q.scene("creditos",function(stage) {
+            var container = container = stage.insert(new Q.UI.Container({
+                x: Q.width/2, y: 5, fill: "rgba(0,0,0,0.5)"
+            })); 
+            
+            var Autores = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 230 ,
+                size: 20,
+                color: "#FFFFFF",
+                label: "Realizado por: Carlos González Torres, Jorge Millán García, Sergio Villarroel Fernández"
+
+            }));
+            var inspirado = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 280 ,
+                size: 15,
+                color: "#FFFFFF",
+                label: "Inspirado en el juego flappy birds."
+
+            }));
+            var Spritess = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 300 ,
+                size: 15,
+                color: "#FFFFFF",
+                label: "Sprites extraídos de: https://www.spriters-resource.com/"
+
+            }));
+            var button = container.insert(new Q.UI.Button({
+                x: 10,
+                y: 400,
+                fill: "#CCCCCC",
+                label: "Menu"
+            }));
+
+            button.on("click", function () {
+                Q.audio.stop();
+                Q.clearStages();
+                Q.stageScene('title-screen', 1);
+                Q.state.p.score = 0;
+                Q.audio.play('button2.mp3');
+
+            });
+
+            container.fit(20);
+            stage.insert(new Q.Sprite({scale:1,x:0,y:0, cy:0}),container);
+        });
 
         Q.Sprite.extend("Player", {
 
@@ -73,7 +123,7 @@ var game = function () {
                         this.play("die");
                         this.p.dead = true;
                         Q.stageScene("endGame", 1, {
-                            label: "Te has contagiado : ("
+                            label: "se ha contagiado."
                         });
                     }
                     if (this.p.vy < 0) { //jump
@@ -108,8 +158,9 @@ var game = function () {
                         collision.obj.p.dead = true;
                         collision.obj.p.vy = -500;
                         collision.obj.del("platformerControls");
+                
                         Q.stageScene("endGame", 1, {
-                            label: "Te has contagiado : ("
+                            label: "se ha contagiado."
                         });
 
                     }
@@ -283,10 +334,9 @@ var game = function () {
                         collision.obj.p.vy = 0;
                         collision.obj.p.vx = 0;
                         collision.obj.p.gravity = 0;
-                        //Q.stageScene('title-scisionreen');
                         collision.obj.del("platformerControls");
                         Q.stageScene("winGame", 1, {
-                            label: "Te han vacunado : ) Enhorabuena!!"
+                            label: " ha sido usted vacunado."
                         });
                     }
                 });
@@ -294,29 +344,80 @@ var game = function () {
             step: function (dt) { }
         });
 
+        Q.level="";
+        Q.record=0;
+
         Q.scene("endGame", function (stage) {
             Q.audio.stop('main_music1.mp3');
             Q.audio.play('hit3.mp3');
 
+            
+            if (Q.level == "Modo facil") {
+                if (DATA.easy < parseInt(Q.text.p.label)){
+                    DATA.easy = parseInt(Q.text.p.label);
+                }
+                Q.record=DATA.easy;
+            }
+            if (Q.level == "Modo normal") {
+                if (DATA.normal < parseInt(Q.text.p.label)){
+                    DATA.normal = parseInt(Q.text.p.label);
+                }
+                Q.record=DATA.normal;
+            }
+            if (Q.level == "Modo dificil") {
+                if (DATA.dificult < parseInt(Q.text.p.label)){
+                    DATA.dificult = parseInt(Q.text.p.label);
+                }   
+                Q.record=DATA.dificult;
+            }
+            if (Q.level == "Modo infinito") {
+                if (DATA.infinite < parseInt(Q.text.p.label)){
+                    DATA.infinite = parseInt(Q.text.p.label);
+                }
+                Q.record=DATA.infinite;
+            }
+
+            console.log(Q.level + " " + Q.record);
+     
+
+          
+
+            stage.insert(new Q.Informe());
             var container = stage.insert(new Q.UI.Container({
-                x: Q.width / 2,
-                y: Q.height / 2,
-                border: true,
-                fill: "rgba(0,0,0,0.5)"
+                x: 600,
+                y: 130,
+
             }));
 
-            var button = container.insert(new Q.UI.Button({
-                x: 0,
-                y: 0,
-                fill: "#CCCCCC",
-                label: "Menu"
+            var puntuacion = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 200 ,
+                color: "#000000",
+                size: 14,
+                label: "Puntuacion actual: " + Q.text.p.label
+            }));
+
+            var puntuacionRecord = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 230 ,
+                size: 14,
+                color: "#000000",
+                label: "Record personal: " + Q.record
             }));
 
             var label = container.insert(new Q.UI.Text({
-                x: 10,
-                y: -10 - button.p.h,
-                color: "#FF0000",
+                x: 60,
+                y: 159 ,
+                color: "#d32d41",
+                size: 12,
                 label: stage.options.label
+            }));
+
+            var button = container.insert(new Q.UI.Button({
+                x: 10,
+                y: 400,
+                fill: "#CCCCCC",
+                label: "Menu"
             }));
 
             button.on("click", function () {
@@ -327,7 +428,20 @@ var game = function () {
                 Q.audio.play('button2.mp3');
 
             });
-            container.fit(20);
+
+           
+            container.fit(10);
+        });
+
+        Q.Sprite.extend("Informe", {
+            init: function (p) {
+                this._super(p, {
+                    asset: "informe.png",
+                    x: 620,
+                    y: 300
+                    
+                });
+            }
         });
 
         Q.scene("winGame", function (stage) {
@@ -336,24 +450,73 @@ var game = function () {
             Q.audio.play('pinchazo.mp3');
             Q.audio.play('applause.mp3');
 
+            if (Q.level == "Modo facil") {
+                if (DATA.easy < parseInt(Q.text.p.label)){
+                    DATA.easy = parseInt(Q.text.p.label);
+                }
+                Q.record=DATA.easy;
+                    
+            }
+            if (Q.level == "Modo normal") {
+                if (DATA.normal < parseInt(Q.text.p.label)){
+                    DATA.normal = parseInt(Q.text.p.label);
+                }
+                Q.record=DATA.normal;
+            }
+            if (Q.level == "Modo dificil") {
+                if (DATA.dificult < parseInt(Q.text.p.label)){
+                    DATA.dificult = parseInt(Q.text.p.label);
+                }   
+                Q.record=DATA.dificult;
+            }
+            if (Q.level == "Modo infinito") {
+                if (DATA.infinite < parseInt(Q.text.p.label)){
+                    DATA.infinite = parseInt(Q.text.p.label);
+                }
+                Q.record=DATA.infinite;
+            }
+
+            console.log(Q.level + " " + Q.record);
+     
+
+          
+
+            stage.insert(new Q.Informe());
             var container = stage.insert(new Q.UI.Container({
-                x: Q.width / 2,
-                y: Q.height / 2,
-                fill: "rgba(0,0,0,0.5)"
+                x: 600,
+                y: 130,
+
             }));
 
-            var button = container.insert(new Q.UI.Button({
-                x: 0,
-                y: 0,
-                fill: "#CCCCCC",
-                label: "Menu"
+            var puntuacion = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 200 ,
+                color: "#000000",
+                size: 14,
+                label: "Puntuacion actual: " + Q.text.p.label
+            }));
+
+            var puntuacionRecord = container.insert(new Q.UI.Text({
+                x: 10,
+                y: 230 ,
+                size: 14,
+                color: "#000000",
+                label: "Record personal: " + Q.record
             }));
 
             var label = container.insert(new Q.UI.Text({
-                x: 10,
-                y: -10 - button.p.h,
-                color: "#00BB2D",
+                x: 79,
+                y: 159 ,
+                color: "#019cdc",
+                size: 12,
                 label: stage.options.label
+            }));
+
+            var button = container.insert(new Q.UI.Button({
+                x: 10,
+                y: 400,
+                fill: "#CCCCCC",
+                label: "Menu"
             }));
 
             button.on("click", function () {
@@ -363,15 +526,16 @@ var game = function () {
                 Q.state.p.score = 0;
                 Q.audio.play('button2.mp3');
 
-
             });
-            container.fit(20);
+
+           
+            container.fit(10);
         });
 
         /*Modo infinito */
 
         Q.virus = [];
-        Q.pos =600;
+        Q.pos = 600;
         Q.GameObject.extend('VirusCreator', {
             init: function () {
                 this.p = {
@@ -395,11 +559,11 @@ var game = function () {
 
                     //this.stage.insert(new Q.covidAzul({ x: Q.personaje.p.x + 600, y: r + 20 }));
 
-                //if(Q.crea % 2 == 0){
-                this.stage.insert(new Q.covidAzul({ x: Q.personaje.p.x + Q.pos, y: r + 20 }));
-                Q.pos+=150;
-                //}
-                
+                    //if(Q.crea % 2 == 0){
+                    this.stage.insert(new Q.covidAzul({ x: Q.personaje.p.x + Q.pos, y: r + 20 }));
+                    Q.pos += 150;
+                    //}
+
 
                 }
                 console.log("La variable vale: " + Q.crea);
@@ -449,6 +613,7 @@ var game = function () {
                 fill: "#1C00ff00"
             }));
             buttonEasy.on("click", function () {
+                Q.level="Modo facil";
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('levelEasy');
@@ -467,6 +632,7 @@ var game = function () {
 
             }));
             buttonMedio.on("click", function () {
+                Q.level="Modo normal";
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('levelNormal');
@@ -486,6 +652,7 @@ var game = function () {
 
             }));
             buttonDificil.on("click", function () {
+                Q.level="Modo dificil";
                 Q.clearStages();
                 Q.stageScene('hud', 1);
                 Q.stageScene('levelHard');
@@ -505,6 +672,7 @@ var game = function () {
 
             }));
             buttonInf.on("click", function () {
+                Q.level="Modo infinito";
                 Q.pos = 600;
                 Q.clearStages();
                 Q.stageScene('hud', 1);
@@ -515,6 +683,112 @@ var game = function () {
                 });
 
             });
+
+            container.fit(20);
+
+            var container1 = stage.insert(new Q.UI.Container({
+                x: 1150,
+                y: 50,
+                w: 10,
+                h: 10,
+                fill: "rgba(0,0,0,0.5)"
+            }));
+
+            var buttonRank = container1.insert(new Q.UI.Button({
+                asset: "ranking.png",
+                // label: "Ranking",
+                y: 0,
+                x: 0,
+                fill: "#1C00ff00"
+            }));
+            buttonRank.on("click", function () {
+                Q.clearStages();
+                Q.stageScene('rankScene');
+                Q.audio.play('button2.mp3');
+                Q.audio.play('music_ranking.mp3', {
+                    loop: true
+                });
+
+            });
+
+            var container2 = stage.insert(new Q.UI.Container({
+                x: 50,
+                y: 50,
+                w: 10,
+                h: 10
+            }));
+
+            var buttonCredit = container2.insert(new Q.UI.Button({
+                label: "Créditos",
+                y: 0,
+                x: 0,
+                fill: "#1C00ff00"
+            }));
+            buttonCredit.on("click", function () {
+                Q.clearStages();
+                Q.stageScene('creditos');
+                Q.audio.play('button2.mp3');
+                Q.audio.play('credit_music.mp3', {
+                    loop: true
+                });
+
+            });
+
+        });
+
+        Q.scene("rankScene", function (stage) {
+            Q.audio.stop('main_music1.mp3');
+            //Q.audio.play('music_ranking.mp3');
+
+            var container = stage.insert(new Q.UI.Container({
+                x: 600,
+                y: 160,
+                border: true,
+                fill: "rgba(0,0,0,0.5)"
+            }));
+
+            var button = container.insert(new Q.UI.Button({
+                x: 0,
+                y: 360,
+                fill: "#CCCCCC",
+                label: "Menu"
+            }));
+
+            button.on("click", function () {
+                Q.audio.stop();
+                Q.clearStages();
+                Q.stageScene('title-screen', 1);
+                Q.state.p.score = 0;
+                Q.audio.play('button2.mp3');
+
+
+            });
+
+
+            var label = container.insert(new Q.UI.Text({
+                x: 0,
+                y: 0,
+                color: "#FFFFFF",
+                label: "Nivel Fácil: " + DATA.easy
+            }));
+            var label1 = container.insert(new Q.UI.Text({
+                x: 0,
+                y: 100,
+                color: "#FFFFFF",
+                label: "Nivel Normal: " + DATA.normal
+            }));
+            var label2 = container.insert(new Q.UI.Text({
+                x: 0,
+                y: 200,
+                color: "#FFFFFF",
+                label: "Nivel Difícil: " + DATA.dificult
+            }));
+            var label3 = container.insert(new Q.UI.Text({
+                x: 0,
+                y: 300,
+                color: "#FFFFFF",
+                label: "Nivel Infinito: " + DATA.infinite
+            }));
 
             container.fit(20);
         });
@@ -529,6 +803,7 @@ var game = function () {
                         color: "#00b050"
                     });
                     Q.state.on("change.score", this, "score");
+                    Q.text = this
                 },
                 score: function (score) {
                     this.p.label = "" + score;
@@ -553,9 +828,7 @@ var game = function () {
         Q.scene("levelEasy", function (stage) {
 
             Q.stageTMX("levelFacil.tmx", stage);
-            // Create the player and add them to the stage
-            // var doctor = new Q.Doctor({x: 3500, y:350});
-            // stage.insert(doctor);
+
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
                 x: true,
@@ -574,9 +847,6 @@ var game = function () {
         Q.scene("levelNormal", function (stage) {
 
             Q.stageTMX("levelNormal.tmx", stage);
-            // Create the player and add them to the stage
-            // var doctor = new Q.Doctor({x: 1747, y:439});
-            // stage.insert(doctor);
 
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
@@ -597,8 +867,8 @@ var game = function () {
             Q.stageTMX("levelDificil.tmx", stage);
             // Create the player and add them to the stage
             // Create the player and add them to the stage
-            //  var doctor = new Q.Doctor({x: 1747, y:439});
-            // stage.insert(doctor);
+            var doctor = new Q.Doctor({x: 9502.20, y:494.20});
+            stage.insert(doctor);
 
             var player = stage.insert(new Q.Player());
             stage.add("viewport").follow(player, {
